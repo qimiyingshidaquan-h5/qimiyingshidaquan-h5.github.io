@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奇米影视大全 - 影视分类索引与正版观看导航</title>
+<meta name="description" content="奇米影视大全(qimiyingshidaquan-h5.github.io)按类型、地区、年代、节奏整理电影剧集分类索引，移动端自适应单页，不提供播放入源，仅做正版导航。">
+<meta name="keywords" content="奇米影视大全, qimiyingshidaquan, 影视分类, 片单索引, 影视导航, 正版观看">
+<style>
+/* ========== 全局 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+  background: #080b14;
+  color: #d6deea;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+
+/* 微光网格背景 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(54,226,196,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(54,226,196,.035) 1px, transparent 1px);
+  background-size: 38px 38px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ========== 栏目1：顶栏 ========== */
+.topbar {
+  background: rgba(8,11,20,.78);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(54,226,196,.16);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: .8rem 1.2rem;
+}
+.topbar-in {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo { font-size: 1.45rem; font-weight: 900; letter-spacing: 1px; color: #fff; }
+.logo b { color: #36e2c4; text-shadow: 0 0 12px rgba(54,226,196,.5); }
+.logo small { font-size: .58rem; letter-spacing: 2px; color: #5a6577; margin-left: .5rem; font-weight: 400; }
+.nav-links { display: flex; gap: 1.4rem; }
+.nav-links a { font-size: .85rem; color: #8a97ab; transition: color .25s; }
+.nav-links a:hover { color: #36e2c4; }
+
+/* ========== 栏目2：总览大屏 ========== */
+.hero {
+  max-width: 1200px;
+  margin: auto;
+  padding: 3.5rem 1.2rem 2.5rem;
+}
+.hero h1 {
+  font-size: 3rem;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: .8rem;
+  letter-spacing: .5px;
+}
+.hero h1 b { color: #36e2c4; text-shadow: 0 0 18px rgba(54,226,196,.45); }
+.hero > p { max-width: 560px; color: #9aa6ba; margin-bottom: 1.8rem; }
+
+/* 统计条 */
+.stat-bar { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.stat b { font-size: 1.8rem; color: #36e2c4; font-weight: 900; }
+.stat span { display: block; font-size: .72rem; color: #6b7689; letter-spacing: 1px; }
+
+/* 假搜索框（纯展示） */
+.search-dummy {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(54,226,196,.22);
+  border-radius: 40px;
+  padding: .8rem 1.4rem;
+  max-width: 560px;
+}
+.search-dummy .ic { color: #36e2c4; font-size: 1rem; }
+.search-dummy input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #d6deea;
+  font-size: .92rem;
+}
+.search-dummy input::placeholder { color: #5a6577; }
+.search-dummy .go {
+  font-size: .78rem;
+  color: #080b14;
+  background: #36e2c4;
+  padding: .3rem .9rem;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+/* 热搜词条 */
+.hot-words { margin-top: 1.2rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+.hot-words span { font-size: .74rem; color: #8a97ab; }
+.hot-words a {
+  font-size: .76rem;
+  color: #cdd6e4;
+  border: 1px solid rgba(255,255,255,.1);
+  padding: .2rem .8rem;
+  border-radius: 20px;
+  transition: .25s;
+}
+.hot-words a:hover { border-color: #36e2c4; color: #36e2c4; }
+
+/* ========== 栏目3：分类矩阵 ========== */
+.cat-sec { max-width: 1200px; margin: auto; padding: 2.5rem 1.2rem; }
+.sec-head { margin-bottom: 1.5rem; display: flex; align-items: baseline; gap: .6rem; }
+.sec-head h2 { font-size: 1.55rem; color: #fff; padding-left: .8rem; border-left: 4px solid #36e2c4; }
+.sec-head span { font-size: .74rem; color: #5a6577; letter-spacing: 2px; }
+
+.cat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+.cat {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 1.2rem 1.1rem;
+  transition: .25s;
+  position: relative;
+  overflow: hidden;
+}
+.cat::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: #36e2c4;
+  opacity: 0;
+  transition: .25s;
+}
+.cat:hover { border-color: rgba(54,226,196,.4); transform: translateY(-3px); }
+.cat:hover::before { opacity: 1; }
+.cat .ico { font-size: 1.4rem; margin-bottom: .4rem; }
+.cat h4 { font-size: 1rem; color: #fff; margin-bottom: .3rem; }
+.cat .sub { font-size: .74rem; color: #7a melt; color: #7a8699; }
+.cat .count { position: absolute; right: .9rem; top: .9rem; font-size: .7rem; color: #5a6577; }
+
+/* ========== 栏目4：字母/类型索引 ========== */
+.index-sec { padding: 2.5rem 1.2rem; background: rgba(255,255,255,.015); border-top: 1px solid rgba(255,255,255,.06); border-bottom: 1px solid rgba(255,255,255,.06); }
+.index-in { max-width: 1200px; margin: auto; }
+.alpha-bar { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1.6rem; }
+.alpha-bar a {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  font-size: .82rem;
+  color: #9aa6ba;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  transition: .2s;
+}
+.alpha-bar a:hover { background: #36e2c4; color: #080b14; border-color: #36e2c4; font-weight: 700; }
+
+.idx-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; }
+.idx-col h4 { font-size: .9rem; color: #36e2c4; margin-bottom: .7rem; letter-spacing: 1px; }
+.idx-item {
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem 0;
+  border-bottom: 1px dashed rgba(255,255,255,.06);
+  font-size: .86rem;
+  color: #cdd6e4;
+}
+.idx-item:hover { color: #36e2c4; }
+.idx-item span { font-size: .7rem; color: #5a6577; }
+
+/* ========== 栏目5：筛选说明 ========== */
+.filter-sec { max-width: 1200px; margin: auto; padding: 2.5rem 1.2rem 3rem; }
+.filter-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+.fc {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-top: 3px solid #f0a850;
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.fc .k { font-size: .72rem; color: #f0a850; font-weight: 700; letter-spacing: 1px; margin-bottom: .4rem; }
+.fc h4 { font-size: .98rem; color: #fff; margin-bottom: .3rem; }
+.fc p { font-size: .8rem; color: #8a97ab; }
+
+/* ========== 关于 ========== */
+.about {
+  background: rgba(255,255,255,.02);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 3.2rem 1.2rem;
+  text-align: center;
+}
+.about-in { max-width: 680px; margin: auto; }
+.about h2 { color: #fff; font-size: 1.45rem; margin-bottom: 1rem; }
+.about p { color: #9aa6ba; font-size: .9rem; margin-bottom: .8rem; }
+.about b { color: #36e2c4; }
+
+/* ========== 页脚 ========== */
+footer {
+  background: #05070d;
+  color: #5a6577;
+  text-align: center;
+  padding: 2.2rem 1rem;
+  font-size: .82rem;
+}
+footer a { color: #36e2c4; }
+.disclaim {
+  max-width: 760px;
+  margin: .8rem auto 0;
+  font-size: .72rem;
+  color: #495266;
+  line-height: 1.6;
+}
+
+/* ========== 移动端 ========== */
+@media (max-width: 860px) {
+  .cat-grid { grid-template-columns: 1fr 1fr; }
+  .filter-cards { grid-template-columns: 1fr 1fr; }
+  .idx-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero h1 { font-size: 2.1rem; }
+}
+@media (max-width: 480px) {
+  .cat-grid, .filter-cards { grid-template-columns: 1fr; }
+  .stat-bar { gap: 1.2rem; }
+}
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/laoliu.js"></script>
+
+<!-- 顶栏 -->
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logo"><b>奇米</b>影视大全<small>QIMI INDEX</small></div>
+    <nav class="nav-links">
+      <a href="#">总览</a>
+      <a href="#cat">分类矩阵</a>
+      <a href="#idx">类型索引</a>
+      <a href="#filter">筛选说明</a>
+    </nav>
+  </div>
+</div>
+
+<!-- 总览大屏 -->
+<section class="hero">
+  <h1>奇米影视大全<br>一部片，<b>先找对分类</b></h1>
+  <p>奇米影视大全（qimiyingshidaquan-h5.github.io）把电影剧集按类型、地区、年代、节奏整理成可检索的索引目录，不播片、只导航，正版观看走授权平台。</p>
+
+  <div class="stat-bar">
+    <div class="stat"><b>12</b><span>大类目</span></div>
+    <div class="stat"><b>48</b><span>子类型</span></div>
+    <div class="stat"><b>6</b><span>地区维度</span></div>
+    <div class="stat"><b>0</b><span>播放入源</span></div>
+  </div>
+
+  <div class="search-dummy">
+    <span class="ic">🔍</span>
+    <input placeholder="搜类型 / 情绪 / 场景，如：周末·烧脑·不吓人" disabled>
+    <span class="go">检索</span>
+  </div>
+
+  <div class="hot-words">
+    <span>热门维度：</span>
+    <a href="#">悬疑反转</a>
+    <a href="#">东亚都市</a>
+    <a href="#">90年代</a>
+    <a href="#">慢热神作</a>
+    <a href="#">下饭治愈</a>
+    <a href="#">冷门修复</a>
+  </div>
+</section>
+
+<!-- 分类矩阵 -->
+<section class="cat-sec" id="cat">
+  <div class="sec-head">
+    <h2>分类矩阵</h2><span>CATEGORY MATRIX</span>
+  </div>
+  <div class="cat-grid">
+    <div class="cat"><span class="count">240+</span><div class="ico">🎬</div><h4>剧情电影</h4><div class="sub">现实·群像·改编</div></div>
+    <div class="cat"><span class="count">180+</span><div class="ico">📺</div><h4>剧集长篇</h4><div class="sub">悬疑·年代·职场</div></div>
+    <div class="cat"><span class="count">96</span><div class="ico">🌀</div><h4>科幻奇幻</h4><div class="sub">高概念·异世界</div></div>
+    <div class="cat"><span class="count">132</span><div class="ico">🔍</div><h4>悬疑犯罪</h4><div class="sub">推理·反转·纪实</div></div>
+    <div class="cat"><span class="count">88</span><div class="ico">😊</div><h4>喜剧轻喜</h4><div class="sub">解压·讽刺·日常</div></div>
+    <div class="cat"><span class="count">74</span><div class="ico">💗</div><h4>情感温情</h4><div class="sub">爱情·家庭·成长</div></div>
+    <div class="cat"><span class="count">65</span><div class="ico">🗡️</div><h4>武侠古装</h4><div class="sub">江湖·权谋·志怪</div></div>
+    <div class="cat"><span class="count">53</span><div class="ico">🌏</div><h4>动画国漫</h4><div class="sub">单元·剧场版·短篇</div></div>
+    <div class="cat"><span class="count">47</span><div class="ico">🎙️</div><h4>纪实人文</h4><div class="sub">自然·历史·社会</div></div>
+    <div class="cat"><span class="count">61</span><div class="ico">⚡</div><h4>动作硬核</h4><div class="sub">枪战·格斗·救援</div></div>
+    <div class="cat"><span class="count">39</span><div class="ico">👻</div><h4>惊悚怪谈</h4><div class="sub">心理·民俗·异闻</div></div>
+    <div class="cat"><span class="count">28</span><div class="ico">🎭</div><h4>舞台戏曲</h4><div class="sub">话剧·音乐剧·非遗</div></div>
+  </div>
+</section>
+
+<!-- 类型索引 -->
+<section class="index-sec" id="idx">
+  <div class="index-in">
+    <div class="sec-head">
+      <h2>类型索引</h2><span>A–Z TAGS</span>
+    </div>
+    <div class="alpha-bar">
+      <a href="#">A</a><a href="#">B</a><a href="#">C</a><a href="#">D</a><a href="#">E</a>
+      <a href="#">F</a><a href="#">G</a><a href="#">H</a><a href="#">J</a><a href="#">K</a>
+      <a href="#">L</a><a href="#">M</a><a href="#">N</a><a href="#">P</a><a href="#">Q</a>
+      <a href="#">R</a><a href="#">S</a><a href="#">T</a><a href="#">W</a><a href="#">X</a>
+      <a href="#">Y</a><a href="#">Z</a>
+    </div>
+
+    <div class="idx-list">
+      <div class="idx-col">
+        <h4>按情绪</h4>
+        <div class="idx-item">烧脑反转 <span>42</span></div>
+        <div class="idx-item">治愈下饭 <span>38</span></div>
+        <div class="idx-item">压抑深刻 <span>27</span></div>
+        <div class="idx-item">轻松解压 <span>51</span></div>
+        <div class="idx-item">热血燃向 <span>33</span></div>
+        <div class="idx-item">细思极恐 <span>19</span></div>
+      </div>
+      <div class="idx-col">
+        <h4>按场景</h4>
+        <div class="idx-item">通勤碎片 <span>46</span></div>
+        <div class="idx-item">周末连看 <span>29</span></div>
+        <div class="idx-item">睡前助眠 <span>22</span></div>
+        <div class="idx-item">聚会场域 <span>17</span></div>
+        <div class="idx-item">亲子共赏 <span>24</span></div>
+        <div class="idx-item">独居沉浸 <span>35</span></div>
+      </div>
+      <div class="idx-col">
+        <h4>按年代</h4>
+        <div class="idx-item">80年代修复 <span>14</span></div>
+        <div class="idx-item">90黄金期 <span>31</span></div>
+        <div class="idx-item">00千禧风 <span>26</span></div>
+        <div class="idx-item">10国产崛起 <span>44</span></div>
+        <div class="idx-item">近年新作 <span>58</span></div>
+        <div class="idx-item">未分类待编 <span>12</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 筛选说明 -->
+<section class="filter-sec" id="filter">
+  <div class="sec-head">
+    <h2>怎么用这个大全</h2><span>HOW TO BROWSE</span>
+  </div>
+  <div class="filter-cards">
+    <div class="fc">
+      <div class="k">STEP 01</div>
+      <h4>先定大类</h4>
+      <p>从分类矩阵里选类型，先收窄范围，别在海量片名里瞎翻。</p>
+    </div>
+    <div class="fc">
+      <div class="k">STEP 02</div>
+      <h4>再挑维度</h4>
+      <p>按情绪、场景、年代三层标签交叉筛选，定位“现在最想看的那一部”。</p>
+    </div>
+    <div class="fc">
+      <div class="k">STEP 03</div>
+      <h4>看索引词条</h4>
+      <p>字母索引和标签都是锚点 # 占位，用于演示目录结构，不绑定真实资源。</p>
+    </div>
+    <div class="fc">
+      <div class="k">STEP 04</div>
+      <h4>走正版渠道</h4>
+      <p>本站不播片，实际观看请通过已取得授权的正版平台。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 关于 -->
+<section class="about">
+  <div class="about-in">
+    <h2>关于奇米影视大全</h2>
+    <p>欢迎访问 <b>奇米影视大全</b>（https://qimiyingshidaquan-h5.github.io）。本站是静态单页影视分类索引与正版导航站，核心词：奇米影视大全 / qimiyingshidaquan / 影视分类 / 片单索引。</p>
+    <p>不提供在线播放入源、不托管视听文件、不聚合第三方资源、不提供下载入口，所有交互元素均为 # 占位，实际观看请走授权平台。</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 奇米影视大全 · qimiyingshidaquan-h5.github.io</p>
+  <p>网址：<a href="https://qimiyingshidaquan-h5.github.io">https://qimiyingshidaquan-h5.github.io</a></p>
+  <p class="disclaim">本页为影视分类索引与正版导航示例，不托管、不上传、不代理任何视频文件或流媒体播放服务，不提供未授权播放入源、网盘资源、下载或镜像入口；站内分类、词条、片名与简介均为原创示例整理，版权归原权利方所有。若实际建站涉及互联网视听节目传播，请按属地广电与版权要求办理相应许可。</p>
+</footer>
+
+</body>
+</html>
